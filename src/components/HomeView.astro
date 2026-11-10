@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro'
+import TagChip from './TagChip.astro'
+import { LANGS, UI, pathFor, type Lang } from '../i18n/ui'
+import { daysSinceFirst, entriesFor, fmtDate } from '../utils/posts'
+
+interface Props {
+  lang: Lang
+}
+const { lang } = Astro.props
+const ui = UI[lang]
+const entries = await entriesFor(lang)
+const alternates = Object.fromEntries(LANGS.map((l) => [l, pathFor(l, '/')]))
+// 번역이 없는 글은 한국어 원문 주소로 보낸다
+const hrefOf = (e: (typeof entries)[number]) => pathFor(e.translated ? lang : 'ko', `/posts/${e.slug}/`)
+---
+<Base lang={lang} title={ui.homeTitle} alternates={alternates}>
+  <div class="home">
+    <aside class="intro">
+      <h1>{ui.introTitle}</h1>
+      <p>{ui.introText}</p>
+      <div class="stats">
+        <div><b>{entries.length}</b>{ui.posts}</div>
+        <div><b>{daysSinceFirst(entries.map((e) => e.post))}</b>{ui.days}</div>
+      </div>
+    </aside>
+    <ol class="timeline">
+      {entries.map((e) => (
+        <li class="entry">
+          <time datetime={fmtDate(e.post.data.date)}>{fmtDate(e.post.data.date)}</time>
+          <h2>
+            <a href={hrefOf(e)} hreflang={e.translated ? lang : 'ko'}>{e.post.data.title}</a>
+            {!e.translated && <span class="ko-only" title={ui.koOnlyHint}>{ui.koOnly}</span>}
+          </h2>
+          <p>{e.post.data.summary}</p>
+          <div class="chips">{e.post.data.tags.map((t) => <TagChip tag={t} />)}</div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</Base>

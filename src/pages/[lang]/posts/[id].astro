@@ -1,0 +1,18 @@
+---
+import PostView from '../../../components/PostView.astro'
+import { entriesFor } from '../../../utils/posts'
+
+// 번역된 글만 이 주소에 페이지가 생긴다. 번역이 없는 글은 목록이 한국어 원문으로 연결한다.
+export async function getStaticPaths() {
+  const paths = []
+  for (const lang of ['en', 'id'] as const) {
+    for (const entry of await entriesFor(lang)) {
+      if (entry.translated) paths.push({ params: { lang, id: entry.slug }, props: { entry } })
+    }
+  }
+  return paths
+}
+
+const { entry } = Astro.props
+---
+<PostView entry={entry} />

@@ -1,0 +1,30 @@
+---
+import { render } from 'astro:content'
+import Base from '../layouts/Base.astro'
+import TagChip from './TagChip.astro'
+import { UI, pathFor, type Lang } from '../i18n/ui'
+import { fmtDate, translatedLangs, type Entry } from '../utils/posts'
+
+interface Props {
+  entry: Entry
+}
+const { entry } = Astro.props
+const { lang, slug, post } = entry
+const ui = UI[lang]
+const { Content } = await render(post)
+// 번역본이 있는 언어로만 글 주소를 잇는다(나머지는 그 언어 첫 화면)
+const available = await translatedLangs(slug)
+const alternates = Object.fromEntries(available.map((l) => [l, pathFor(l, `/posts/${slug}/`)]))
+---
+<Base lang={lang} title={post.data.title} description={post.data.summary} alternates={alternates}>
+  <article class="article">
+    <a class="back" href={pathFor(lang, '/')}>{ui.back}</a>
+    <header>
+      <time datetime={fmtDate(post.data.date)}>{fmtDate(post.data.date)}</time>
+      <h1>{post.data.title}</h1>
+      <p class="lead">{post.data.summary}</p>
+      <div class="chips">{post.data.tags.map((t) => <TagChip tag={t} />)}</div>
+    </header>
+    <div class="prose"><Content /></div>
+  </article>
+</Base>

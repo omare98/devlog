@@ -1,23 +1,29 @@
 ---
 import '../styles/global.css'
+import { LANGS, LANG_NAMES, UI, pathFor, type Lang } from '../i18n/ui'
 
 interface Props {
+  lang: Lang
   title: string
   description?: string
+  /** 같은 화면의 다른 언어 주소. 없는 언어는 전환 링크가 그 언어의 첫 화면으로 간다 */
+  alternates?: Partial<Record<Lang, string>>
 }
-const { title, description = '쇼핑몰을 만들며 남기는 개발 기록' } = Astro.props
-const base = import.meta.env.BASE_URL.replace(/\/$/, '')
-const home = title === '개발 기록'
+const { lang, title, description, alternates = {} } = Astro.props
+const ui = UI[lang]
+const home = title === ui.homeTitle
+const switchHref = (l: Lang) => alternates[l] ?? pathFor(l, '/')
 ---
 <!doctype html>
-<html lang="ko">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{home ? title : `${title} · 개발 기록`}</title>
-    <meta name="description" content={description} />
+    <title>{home ? title : `${title} · ${ui.homeTitle}`}</title>
+    <meta name="description" content={description ?? ui.description} />
     <meta name="color-scheme" content="light dark" />
-    <link rel="alternate" type="application/rss+xml" title="개발 기록" href={`${base}/rss.xml`} />
+    <link rel="alternate" type="application/rss+xml" title={ui.homeTitle} href={pathFor(lang, '/rss.xml')} />
+    {LANGS.filter((l) => alternates[l]).map((l) => <link rel="alternate" hreflang={l} href={alternates[l]} />)}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -27,10 +33,22 @@ const home = title === '개발 기록'
   </head>
   <body>
     <div class="site-nav">
-      <a class="logo" href={`${base}/`}>개발<span>.</span>기록</a>
-      <nav aria-label="사이트"><a href={`${base}/`}>글</a><a href={`${base}/rss.xml`}>RSS</a></nav>
+      <a class="logo" href={pathFor(lang, '/')}>{ui.logo[0]}<span>.</span>{ui.logo[1]}</a>
+      <nav aria-label={ui.nav}>
+        <a href={pathFor(lang, '/rss.xml')}>RSS</a>
+        <span class="langs" role="group" aria-label={ui.languageLabel}>
+          {LANGS.map((l) => (
+            <a
+              href={switchHref(l)}
+              hreflang={l}
+              lang={l}
+              aria-current={l === lang ? 'true' : undefined}
+              class={l === lang ? 'current' : undefined}>{LANG_NAMES[l]}</a>
+          ))}
+        </span>
+      </nav>
     </div>
     <main class="site-main"><slot /></main>
-    <footer class="site-foot">© 개발 기록</footer>
+    <footer class="site-foot">{ui.footer}</footer>
   </body>
 </html>

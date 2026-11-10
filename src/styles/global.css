@@ -77,3 +77,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outlin
 .prose th { color: var(--muted); font-weight: 600; background: var(--callout) }
 .prose blockquote { margin: 1.2em 0; padding: 10px 16px; border-left: 4px solid var(--accent); background: var(--callout); border-radius: 0 8px 8px 0 }
 .prose img { max-width: 100%; height: auto; border-radius: 8px }
+
+/* 언어 전환 */
+.langs { margin-left: 18px; display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 8px }
+.site-nav .langs a { margin: 0; padding: 2px 10px; border-radius: 6px; font-size: .8rem; color: var(--muted) }
+.site-nav .langs a.current { background: var(--callout); color: var(--fg); font-weight: 700 }
+.ko-only { margin-left: 8px; font: 600 .68rem/1.6 var(--mono); vertical-align: middle; padding: 0 6px; border-radius: 4px; color: var(--muted); border: 1px solid var(--line) }
+@media (max-width: 560px) {
+  .site-nav { flex-wrap: wrap; gap: 8px }
+  .site-nav nav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px }
+  .langs { margin-left: 0 }
+}
