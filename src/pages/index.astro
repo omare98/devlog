@@ -1,0 +1,22 @@
+---
+import { getCollection } from 'astro:content'
+import Base from '../layouts/Base.astro'
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+const posts = (await getCollection('posts', (p) => !p.data.draft)).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+)
+const fmt = (d: Date) => d.toISOString().slice(0, 10)
+---
+<Base title="개발 기록">
+  <p class="meta">인도네시아 고객을 위한 한국 상품 구매대행 쇼핑몰을 만들며 남기는 기록입니다.</p>
+  <ul class="posts">
+    {posts.map((p) => (
+      <li>
+        <h2><a href={`${base}/posts/${p.id}/`}>{p.data.title}</a></h2>
+        <div class="meta">{fmt(p.data.date)} {p.data.tags.map((t) => <span class="tag">{t}</span>)}</div>
+        <div>{p.data.summary}</div>
+      </li>
+    ))}
+  </ul>
+</Base>
